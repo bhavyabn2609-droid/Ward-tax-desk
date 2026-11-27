@@ -1,0 +1,757 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ward Tax Desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+Devanagari:wght@400;600&family=Noto+Sans+Kannada:wght@400;600&family=Noto+Sans+Malayalam:wght@400;600&family=Noto+Sans+Telugu:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap">
+<style>
+/* Layout: one narrow column built for phones. Three tabs: Pay, How it works, Office view. */
+:root{
+  --bg:#F3F6F7; --surface:#FFFFFF; --fg:#13212B; --muted:#566872; --line:#D6DFE4;
+  --accent:#0B6E6E; --accent-ink:#FFFFFF; --accent-soft:#DCEFEF;
+  --good:#1B7A43; --good-soft:#DEF2E6; --warn:#8F5409; --warn-soft:#FAEBD1; --bad:#B3261E; --bad-soft:#FBE3E0;
+  --font-body:'Inter','Noto Sans Kannada','Noto Sans Devanagari','Noto Sans Telugu','Noto Sans Malayalam',system-ui,sans-serif;
+  --font-head:'Space Grotesk','Noto Sans Kannada','Noto Sans Devanagari','Noto Sans Telugu','Noto Sans Malayalam',system-ui,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D1418; --surface:#152028; --fg:#E7EEF1; --muted:#91A3AD; --line:#26353F;
+    --accent:#4FC3C3; --accent-ink:#052224; --accent-soft:#143436;
+    --good:#5BD08A; --good-soft:#15301F; --warn:#F0B35A; --warn-soft:#352711; --bad:#FF8A80; --bad-soft:#3A1917;
+    color-scheme:dark;
+  }
+}
+[hidden]{display:none!important}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--bg); color:var(--fg); font-family:var(--font-body); font-size:15px; line-height:1.55;
+  padding-block:20px 32px;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap{max-width:720px; margin:0 auto; display:flex; flex-direction:column; gap:16px; min-width:0}
+.col{display:flex; flex-direction:column; gap:16px; min-width:0}
+h1,h2,h3{font-family:var(--font-head); margin:0; text-wrap:balance; line-height:1.25}
+h1{font-size:1.5rem; letter-spacing:-.01em}
+h2{font-size:1.15rem}
+h3{font-size:1rem}
+p{margin:0}
+.muted{color:var(--muted)}
+.sr{position:absolute; left:-9999px}
+.top{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap}
+.brand{display:flex; flex-direction:column; gap:2px; min-width:0}
+.brand small{color:var(--muted); font-size:.8rem}
+.badge{display:inline-block; font-size:.75rem; font-weight:600; padding:4px 10px; border-radius:999px; background:var(--warn-soft); color:var(--warn); letter-spacing:.02em}
+button,select{font:inherit; color:inherit; cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible,.chip:focus-visible,a:focus-visible{outline:3px solid var(--accent); outline-offset:2px}
+.btn{border:0; border-radius:10px; padding:12px 18px; font-weight:600; background:var(--accent); color:var(--accent-ink); min-height:44px; text-decoration:none; display:inline-flex; align-items:center; justify-content:center}
+.btn:disabled{opacity:.45; cursor:not-allowed}
+.btn.ghost{background:transparent; color:var(--fg); border:1px solid var(--line)}
+.btn.small{padding:6px 12px; min-height:34px; font-size:.85rem; border-radius:8px}
+.langsel{background:var(--surface); border:1px solid var(--line); border-radius:999px; padding:8px 14px; font-weight:600; font-size:.9rem; min-height:40px}
+.tabs{display:flex; gap:2px; border-bottom:1px solid var(--line)}
+.tab{flex:1 1 0; min-width:0; background:none; border:0; padding:10px 6px; font-weight:600; font-size:.85rem; line-height:1.3; text-align:center; color:var(--muted); border-bottom:3px solid transparent; margin-bottom:-1px}
+.tab[aria-selected="true"]{color:var(--fg); border-bottom-color:var(--accent)}
+.card{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:20px; display:flex; flex-direction:column; gap:16px; min-width:0}
+.timer{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; padding:12px 16px; background:var(--accent-soft); border-radius:12px}
+.clock{font-family:var(--font-head); font-size:1.6rem; font-weight:700; font-variant-numeric:tabular-nums; letter-spacing:.02em}
+.timer .meta{display:flex; flex-direction:column; font-size:.8rem; color:var(--muted)}
+.stepper{display:grid; grid-template-columns:repeat(4,1fr); gap:6px; list-style:none; margin:0; padding:0}
+.stepper li{font-size:.75rem; font-weight:600; color:var(--muted); border-top:4px solid var(--line); padding-top:6px; min-width:0; overflow-wrap:anywhere}
+.stepper li.done{border-top-color:var(--accent); color:var(--fg)}
+.stepper li.active{border-top-color:var(--accent); color:var(--accent)}
+label.fl{display:flex; flex-direction:column; gap:6px; font-weight:600; font-size:.9rem}
+input[type="text"],input[type="search"]{font:inherit; padding:12px 14px; border-radius:10px; border:1px solid var(--line); background:var(--bg); color:var(--fg); min-height:46px; width:100%}
+.up{text-transform:uppercase}
+.chips{display:flex; flex-wrap:wrap; gap:8px; align-items:center}
+.chip{border:1px dashed var(--line); background:transparent; border-radius:999px; padding:6px 12px; font-size:.85rem; font-variant-numeric:tabular-nums}
+.err{color:var(--bad); font-weight:500; min-height:1.2em}
+dl{display:grid; grid-template-columns:max-content 1fr; gap:8px 20px; margin:0}
+dt{color:var(--muted)}
+dd{margin:0; font-weight:500; overflow-wrap:anywhere}
+.amount{font-family:var(--font-head); font-size:1.9rem; font-weight:700; font-variant-numeric:tabular-nums}
+.row{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+.pill{display:inline-block; padding:3px 10px; border-radius:999px; font-size:.78rem; font-weight:600; white-space:nowrap}
+.pill.paid{background:var(--good-soft); color:var(--good)}
+.pill.pending{background:var(--warn-soft); color:var(--warn)}
+.methods{display:flex; flex-direction:column; gap:8px; border:0; padding:0; margin:0}
+.methods label{display:flex; align-items:center; gap:10px; padding:12px 14px; border:1px solid var(--line); border-radius:10px; cursor:pointer}
+.methods input{accent-color:var(--accent); width:18px; height:18px}
+.qrbox{display:flex; gap:16px; align-items:center; flex-wrap:wrap}
+.qrbox svg{width:132px; height:132px; flex:none; border:6px solid var(--surface); outline:1px solid var(--line); border-radius:4px}
+.qf{fill:var(--fg)} .qb{fill:var(--surface)}
+.receipt{position:relative; border:1px dashed var(--line); border-radius:12px; padding:18px; overflow:hidden}
+.receipt::after{content:"DEMO"; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:var(--font-head); font-weight:700; font-size:5rem; letter-spacing:.2em; color:var(--fg); opacity:.06; transform:rotate(-18deg); pointer-events:none}
+.stamp{font-size:.75rem; font-weight:700; color:var(--bad); letter-spacing:.06em; text-transform:uppercase}
+.result{display:flex; gap:10px; flex-wrap:wrap}
+.result .stat{flex:1 1 120px; background:var(--accent-soft); border-radius:12px; padding:12px 14px}
+.stat b{display:block; font-family:var(--font-head); font-size:1.5rem; font-variant-numeric:tabular-nums}
+.stat span{font-size:.8rem; color:var(--muted)}
+.note{font-size:.85rem; color:var(--muted)}
+.msg{background:var(--bg); border:1px solid var(--line); border-radius:12px; padding:14px; white-space:pre-wrap; overflow-wrap:anywhere}
+textarea{width:100%; font:inherit; background:var(--bg); color:var(--fg); border:1px solid var(--line); border-radius:10px; padding:10px; min-height:70px}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse; width:100%; min-width:480px}
+th,td{text-align:left; padding:10px 8px; border-bottom:1px solid var(--line); font-variant-numeric:tabular-nums; vertical-align:middle}
+th{font-size:.75rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); font-weight:600}
+.bar{height:10px; background:var(--line); border-radius:99px; overflow:hidden}
+.bar i{display:block; height:100%; background:var(--accent); width:0; transition:width .4s}
+.toolbar{display:flex; gap:10px; flex-wrap:wrap}
+.toolbar input{flex:1 1 180px}
+.toolbar select{flex:0 0 auto; background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:10px 12px; min-height:46px}
+.pager{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap}
+.how ol,.how ul{margin:0; padding-left:1.3rem; display:flex; flex-direction:column; gap:10px}
+.callout{background:var(--warn-soft); color:var(--fg); border-radius:12px; padding:14px}
+.foot{font-size:.8rem; color:var(--muted)}
+@media (prefers-reduced-motion: reduce){.bar i{transition:none}}
+@media (max-width:480px){ dl{grid-template-columns:1fr; gap:2px} dt{margin-top:8px} .amount{font-size:1.6rem} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1>Ward Tax Desk</h1>
+      <small data-i="tagline">House tax in four steps</small>
+    </div>
+    <select id="langSel" class="langsel" aria-label="Language">
+      <option value="en">English</option>
+      <option value="kn">ಕನ್ನಡ</option>
+      <option value="hi">हिन्दी</option>
+      <option value="te">తెలుగు</option>
+      <option value="ml">മലയാളം</option>
+    </select>
+  </header>
+  <div><span class="badge" data-i="demo">Demo · sample data · no real payment</span></div>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" id="tabPay" aria-selected="true" aria-controls="pay" type="button" data-i="tabPay">Pay house tax</button>
+    <button class="tab" role="tab" id="tabHow" aria-selected="false" aria-controls="how" type="button" data-i="tabHow">How it works</button>
+    <button class="tab" role="tab" id="tabOffice" aria-selected="false" aria-controls="office" type="button" data-i="tabOffice">Office view</button>
+  </div>
+
+  <!-- PAY -->
+  <main id="pay" role="tabpanel" class="col">
+    <div class="timer">
+      <div class="meta">
+        <span data-i="timerLabel">Trial timer</span>
+        <span><span data-i="taps">Taps</span>: <b id="tapCount">0</b></span>
+      </div>
+      <div class="clock" id="clock">00:00</div>
+      <button class="btn ghost small" id="startBtn" type="button" data-notap data-i="start">Start trial</button>
+    </div>
+
+    <ol class="stepper" id="stepper">
+      <li data-i="st1">Find property</li>
+      <li data-i="st2">Review dues</li>
+      <li data-i="st3">Pay</li>
+      <li data-i="st4">Receipt</li>
+    </ol>
+
+    <section class="card" id="s1">
+      <h2 data-i="st1">Find property</h2>
+      <form id="findForm" class="col" novalidate>
+        <label class="fl"><span data-i="hcode">Household code (optional)</span>
+          <input type="text" id="hc" class="up" autocomplete="off" data-ph="hcodePh" placeholder="e.g. H07">
+        </label>
+        <p class="note" data-i="hcodeNote">Use the code from your survey form so your trial is matched to your answers.</p>
+        <label class="fl"><span data-i="pid">Property ID</span>
+          <input type="text" id="pid" class="up" autocomplete="off" data-ph="pidPh" placeholder="e.g. HT-1001">
+        </label>
+        <div class="err" id="findErr" role="alert"></div>
+        <div class="row"><button class="btn" type="submit" data-i="find">Find</button></div>
+      </form>
+      <div class="col" style="gap:8px">
+        <p class="note" data-i="samples">Pending sample IDs to try:</p>
+        <div class="chips" id="chips"></div>
+        <p class="note" data-i="range">Any ID from HT-1001 to HT-1120 works.</p>
+      </div>
+    </section>
+
+    <section class="card" id="s2" hidden>
+      <h2 data-i="st2">Review dues</h2>
+      <dl id="reviewDl"></dl>
+      <div><div class="note" data-i="payable">Amount payable</div><div class="amount" id="amt"></div></div>
+      <div class="err" id="reviewMsg"></div>
+      <div class="row">
+        <button class="btn ghost" id="back2" type="button" data-i="back">Back</button>
+        <button class="btn" id="go3" type="button" data-i="continue">Continue</button>
+      </div>
+    </section>
+
+    <section class="card" id="s3" hidden>
+      <h2 data-i="st3">Pay</h2>
+      <fieldset class="methods" id="methods">
+        <label><input type="radio" name="m" value="upi" checked><span data-i="mUpi">UPI (scan or pay by UPI ID)</span></label>
+        <label><input type="radio" name="m" value="card"><span data-i="mCard">Debit or credit card</span></label>
+        <label><input type="radio" name="m" value="nb"><span data-i="mNb">Net banking</span></label>
+      </fieldset>
+      <div class="qrbox" id="qrbox">
+        <div id="qr" aria-hidden="true"></div>
+        <p class="note" data-i="qrNote">Sample QR picture. It cannot be scanned and no money moves.</p>
+      </div>
+      <p class="note" id="otherNote" hidden data-i="otherNote">Sample screen. Nothing is charged.</p>
+      <div class="row">
+        <button class="btn ghost" id="back3" type="button" data-i="back">Back</button>
+        <button class="btn" id="payBtn" type="button"><span id="payLbl" data-i="pay">Pay</span> <span id="payAmt"></span></button>
+      </div>
+    </section>
+
+    <section class="card" id="s4" hidden>
+      <h2 data-i="st4">Receipt</h2>
+      <div class="result">
+        <div class="stat"><b id="rTime">0</b><span data-i="timeTaken">Time taken (seconds)</span></div>
+        <div class="stat"><b id="rTaps">0</b><span data-i="taps">Taps</span></div>
+      </div>
+      <div class="receipt">
+        <div class="stamp" data-i="notValid">Demo receipt · not valid</div>
+        <dl id="receiptDl" style="margin-top:10px"></dl>
+      </div>
+      <div class="col" style="gap:8px">
+        <p class="note" id="logStatus" role="status"></p>
+        <p class="note" data-i="formNote">Paste this line into the Google Form so your time is counted:</p>
+        <div class="msg" id="resultLine"></div>
+        <div class="row">
+          <button class="btn" id="copyResult" type="button" data-notap data-i="copy">Copy</button>
+          <button class="btn ghost" id="again" type="button" data-notap data-i="again">Try again</button>
+        </div>
+        <textarea id="fallback" readonly hidden aria-label="Result text"></textarea>
+        <p class="note" id="trialsNote"></p>
+      </div>
+    </section>
+  </main>
+
+  <!-- HOW IT WORKS -->
+  <section id="how" role="tabpanel" class="col how" hidden>
+    <div class="card">
+      <h2 data-i="howTitle">How this works</h2>
+      <ol>
+        <li data-i="how1"></li>
+        <li data-i="how2"></li>
+        <li data-i="how3"></li>
+        <li data-i="how4"></li>
+      </ol>
+    </div>
+    <div class="card">
+      <h2 data-i="howPayTitle">How to pay</h2>
+      <ul>
+        <li data-i="pay1"></li>
+        <li data-i="pay2"></li>
+        <li data-i="pay3"></li>
+      </ul>
+      <p class="callout" data-i="howNote"></p>
+    </div>
+    <div class="card">
+      <h2 data-i="howSurveyTitle">For the survey</h2>
+      <p data-i="howSurvey"></p>
+      <div class="row"><button class="btn" id="goPay" type="button" data-i="tabPay">Pay house tax</button></div>
+    </div>
+  </section>
+
+  <!-- OFFICE -->
+  <section id="office" role="tabpanel" class="col" hidden>
+    <div class="card" id="remCard" hidden>
+      <h2 data-i="remTitle">Reminder message</h2>
+      <p class="note" data-i="remNote">Ready to send by SMS or WhatsApp.</p>
+      <div class="msg" id="remMsg"></div>
+      <div class="row">
+        <a class="btn" id="waLink" href="#" target="_blank" rel="noopener" data-i="wa">Open WhatsApp</a>
+        <button class="btn ghost" id="copyRem" type="button" data-i="copy">Copy</button>
+      </div>
+      <textarea id="remFallback" readonly hidden aria-label="Reminder text"></textarea>
+    </div>
+    <div class="card">
+      <div>
+        <h2 data-i="offTitle">Collection status</h2>
+        <p class="note" data-i="offSample">Sample households.</p>
+      </div>
+      <div class="bar" aria-hidden="true"><i id="bar"></i></div>
+      <p id="offSummary"></p>
+      <div class="toolbar">
+        <input type="search" id="q" data-ph="search" placeholder="Search ID or name" aria-label="Search">
+        <select id="flt" aria-label="Filter">
+          <option value="all" data-i="fAll">All</option>
+          <option value="pending" data-i="fPending">Pending</option>
+          <option value="paid" data-i="fPaid">Paid</option>
+        </select>
+      </div>
+      <div class="tablewrap">
+        <table>
+          <thead><tr>
+            <th data-i="thId">Property</th><th data-i="thOwner">Owner</th><th data-i="thAmt">Tax</th><th data-i="thStatus">Status</th><th><span class="sr">Action</span></th>
+          </tr></thead>
+          <tbody id="offBody"></tbody>
+        </table>
+      </div>
+      <div class="pager">
+        <button class="btn ghost small" id="prevPg" type="button" data-i="prev">Previous</button>
+        <span id="pgInfo" class="note"></span>
+        <button class="btn ghost small" id="nextPg" type="button" data-i="next">Next</button>
+      </div>
+      <div class="row"><button class="btn ghost small" id="resetData" type="button" data-i="reset">Reset sample data</button></div>
+    </div>
+  </section>
+
+  <p class="foot" data-i="foot">Built for a college community project. Every name, number and receipt on this page is a sample.</p>
+</div>
+
+<script>
+(function(){
+  /* ---- Settings you can change ---- */
+  var SITE_URL = 'https://bhavyabn2609-droid.github.io/Ward-tax-desk/';
+  // Paste your Google Apps Script web app URL between the quotes to log every trial to a Google Sheet.
+  var LOG_URL = '';
+
+  var T = {
+    en: {
+      tagline:'House tax in four steps', demo:'Demo · sample data · no real payment',
+      tabPay:'Pay house tax', tabHow:'How it works', tabOffice:'Office view', timerLabel:'Trial timer', taps:'Taps',
+      start:'Start trial', st1:'Find property', st2:'Review dues', st3:'Pay', st4:'Receipt',
+      hcode:'Household code (optional)', hcodePh:'e.g. H07', hcodeNote:'Use the code from your survey form so your trial is matched to your answers.',
+      pid:'Property ID', pidPh:'e.g. HT-1001', find:'Find', samples:'Pending sample IDs to try:', range:'Any ID from HT-1001 to HT-1120 works.',
+      payable:'Amount payable', back:'Back', 'continue':'Continue', pay:'Pay', processing:'Processing…',
+      mUpi:'UPI (scan or pay by UPI ID)', mCard:'Debit or credit card', mNb:'Net banking',
+      qrNote:'Sample QR picture. It cannot be scanned and no money moves.', otherNote:'Sample screen. Nothing is charged.',
+      timeTaken:'Time taken (seconds)', notValid:'Demo receipt · not valid',
+      formNote:'Paste this line into the Google Form so your time is counted:', copy:'Copy', copied:'Copied', again:'Try again',
+      sent:'Result sent to the project sheet.', sendFail:'Could not send. Copy the line below instead.',
+      offTitle:'Collection status', offSample:'Sample households. A payment made in the Pay tab updates this list.',
+      search:'Search ID or name', fAll:'All', fPending:'Pending', fPaid:'Paid',
+      thId:'Property', thOwner:'Owner', thAmt:'Tax', thStatus:'Status', reset:'Reset sample data', prev:'Previous', next:'Next',
+      remTitle:'Reminder message', remNote:'Ready to send by SMS or WhatsApp. Open WhatsApp and choose the contact, or copy the text.', wa:'Open WhatsApp',
+      foot:'Built for a college community project. Every name, number and receipt on this page is a sample.',
+      notFound:'No property found with that ID. Try one of the samples below.', empty:'Type a property ID first.',
+      owner:'Owner', address:'Address', year:'Tax year', propId:'Property ID', already:'This property has already paid. Go back and try another ID.',
+      paid:'Paid', pending:'Pending', remind:'Remind', receiptNo:'Receipt no.', paidOn:'Paid on', method:'Method', paidAmt:'Amount paid',
+      sumA:'households paid', sumB:'collected',
+      trialsNone:'This is your first trial on this device.', trialsMany:'Trials on this device: {n}. Average time: {a} s.',
+      mUpiS:'UPI', mCardS:'Card', mNbS:'Net banking',
+      reminder:'Hello {o}, your house tax of ₹{a} for property {i} is due. Open the Ward Tax Desk link, enter your property ID and pay in about a minute. Your receipt appears straight away. {u}',
+      howTitle:'How this works',
+      how1:'Find your property: type your property ID (for example HT-1001) and tap "Find".',
+      how2:'Check the dues: see the owner name, address, tax year and amount.',
+      how3:'Choose how to pay: UPI, card or net banking.',
+      how4:'Get your receipt: it appears as soon as the payment is done. Keep a screenshot.',
+      howPayTitle:'How to pay',
+      pay1:'UPI: scan the QR with any UPI app (PhonePe, Google Pay, Paytm), check the amount and enter your UPI PIN.',
+      pay2:'Card: enter the card number, expiry date and CVV, then the OTP sent by your bank.',
+      pay3:'Net banking: choose your bank and log in with your bank account.',
+      howNote:'In this demo nothing is charged. In a real system you would be sent to the official payment page. Never share your PIN, OTP or CVV with anyone.',
+      howSurveyTitle:'For the survey',
+      howSurvey:'Tap "Start trial", pay for HT-1001, then paste the result line from the receipt into the Google Form.'
+    },
+    kn: {
+      tagline:'ಮನೆ ತೆರಿಗೆ ನಾಲ್ಕು ಹಂತಗಳಲ್ಲಿ', demo:'ಡೆಮೊ · ಮಾದರಿ ಡೇಟಾ · ನಿಜವಾದ ಪಾವತಿ ಇಲ್ಲ',
+      tabPay:'ತೆರಿಗೆ ಪಾವತಿ', tabHow:'ಹೇಗೆ ಕೆಲಸ ಮಾಡುತ್ತದೆ', tabOffice:'ಕಚೇರಿ ನೋಟ', timerLabel:'ಪ್ರಯೋಗ ಸಮಯ', taps:'ಟ್ಯಾಪ್‌ಗಳು',
+      start:'ಪ್ರಯೋಗ ಪ್ರಾರಂಭಿಸಿ', st1:'ಆಸ್ತಿ ಹುಡುಕಿ', st2:'ಬಾಕಿ ಪರಿಶೀಲಿಸಿ', st3:'ಪಾವತಿಸಿ', st4:'ರಸೀದಿ',
+      hcode:'ಮನೆ ಕೋಡ್ (ಐಚ್ಛಿಕ)', hcodePh:'ಉದಾ. H07', hcodeNote:'ಸಮೀಕ್ಷೆ ಫಾರ್ಮ್‌ನ ಕೋಡ್ ಬಳಸಿ, ಆಗ ನಿಮ್ಮ ಪ್ರಯೋಗ ನಿಮ್ಮ ಉತ್ತರಗಳೊಂದಿಗೆ ಹೊಂದುತ್ತದೆ.',
+      pid:'ಆಸ್ತಿ ಸಂಖ್ಯೆ', pidPh:'ಉದಾ. HT-1001', find:'ಹುಡುಕಿ', samples:'ಪ್ರಯತ್ನಿಸಲು ಬಾಕಿ ಇರುವ ಮಾದರಿ ಸಂಖ್ಯೆಗಳು:', range:'HT-1001 ರಿಂದ HT-1120 ವರೆಗಿನ ಯಾವುದೇ ಸಂಖ್ಯೆ ಕೆಲಸ ಮಾಡುತ್ತದೆ.',
+      payable:'ಪಾವತಿಸಬೇಕಾದ ಮೊತ್ತ', back:'ಹಿಂದೆ', 'continue':'ಮುಂದುವರಿಸಿ', pay:'ಪಾವತಿಸಿ', processing:'ಪ್ರಕ್ರಿಯೆಯಲ್ಲಿದೆ…',
+      mUpi:'UPI (ಸ್ಕ್ಯಾನ್ ಅಥವಾ UPI ಐಡಿ)', mCard:'ಡೆಬಿಟ್ ಅಥವಾ ಕ್ರೆಡಿಟ್ ಕಾರ್ಡ್', mNb:'ನೆಟ್ ಬ್ಯಾಂಕಿಂಗ್',
+      qrNote:'ಇದು ಮಾದರಿ QR ಚಿತ್ರ. ಸ್ಕ್ಯಾನ್ ಆಗುವುದಿಲ್ಲ, ಹಣ ವರ್ಗಾವಣೆ ಆಗುವುದಿಲ್ಲ.', otherNote:'ಇದು ಮಾದರಿ ಪರದೆ. ಯಾವುದೇ ಹಣ ಕಡಿತವಾಗುವುದಿಲ್ಲ.',
+      timeTaken:'ತೆಗೆದುಕೊಂಡ ಸಮಯ (ಸೆಕೆಂಡ್)', notValid:'ಡೆಮೊ ರಸೀದಿ · ಮಾನ್ಯವಲ್ಲ',
+      formNote:'ನಿಮ್ಮ ಸಮಯ ಲೆಕ್ಕಕ್ಕೆ ಬರಲು ಈ ಸಾಲನ್ನು ಗೂಗಲ್ ಫಾರ್ಮ್‌ನಲ್ಲಿ ಅಂಟಿಸಿ:', copy:'ನಕಲಿಸಿ', copied:'ನಕಲಿಸಲಾಗಿದೆ', again:'ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ',
+      sent:'ಫಲಿತಾಂಶವನ್ನು ಪ್ರಾಜೆಕ್ಟ್ ಶೀಟ್‌ಗೆ ಕಳುಹಿಸಲಾಗಿದೆ.', sendFail:'ಕಳುಹಿಸಲಾಗಲಿಲ್ಲ. ಕೆಳಗಿನ ಸಾಲನ್ನು ನಕಲಿಸಿ.',
+      offTitle:'ಸಂಗ್ರಹ ಸ್ಥಿತಿ', offSample:'ಮಾದರಿ ಮನೆಗಳು. ಪಾವತಿ ಟ್ಯಾಬ್‌ನಲ್ಲಿ ಮಾಡಿದ ಪಾವತಿ ಇಲ್ಲಿ ಕಾಣಿಸುತ್ತದೆ.',
+      search:'ಸಂಖ್ಯೆ ಅಥವಾ ಹೆಸರು ಹುಡುಕಿ', fAll:'ಎಲ್ಲಾ', fPending:'ಬಾಕಿ', fPaid:'ಪಾವತಿಸಲಾಗಿದೆ',
+      thId:'ಆಸ್ತಿ', thOwner:'ಮಾಲೀಕರು', thAmt:'ತೆರಿಗೆ', thStatus:'ಸ್ಥಿತಿ', reset:'ಮಾದರಿ ಡೇಟಾ ಮರುಹೊಂದಿಸಿ', prev:'ಹಿಂದಿನದು', next:'ಮುಂದಿನದು',
+      remTitle:'ಜ್ಞಾಪನೆ ಸಂದೇಶ', remNote:'SMS ಅಥವಾ ವಾಟ್ಸಾಪ್‌ನಲ್ಲಿ ಕಳುಹಿಸಲು ಸಿದ್ಧ. WhatsApp ತೆರೆದು ಸಂಪರ್ಕ ಆರಿಸಿ, ಅಥವಾ ಪಠ್ಯ ನಕಲಿಸಿ.', wa:'WhatsApp ತೆರೆಯಿರಿ',
+      foot:'ಕಾಲೇಜು ಸಮುದಾಯ ಯೋಜನೆಗಾಗಿ ರಚಿಸಲಾಗಿದೆ. ಈ ಪುಟದ ಎಲ್ಲಾ ಹೆಸರು, ಸಂಖ್ಯೆ ಮತ್ತು ರಸೀದಿಗಳು ಮಾದರಿ ಮಾತ್ರ.',
+      notFound:'ಈ ಸಂಖ್ಯೆಯ ಆಸ್ತಿ ಸಿಗಲಿಲ್ಲ. ಕೆಳಗಿನ ಮಾದರಿಗಳಲ್ಲಿ ಒಂದನ್ನು ಪ್ರಯತ್ನಿಸಿ.', empty:'ಮೊದಲು ಆಸ್ತಿ ಸಂಖ್ಯೆ ಟೈಪ್ ಮಾಡಿ.',
+      owner:'ಮಾಲೀಕರು', address:'ವಿಳಾಸ', year:'ತೆರಿಗೆ ವರ್ಷ', propId:'ಆಸ್ತಿ ಸಂಖ್ಯೆ', already:'ಈ ಆಸ್ತಿಯ ತೆರಿಗೆ ಈಗಾಗಲೇ ಪಾವತಿಯಾಗಿದೆ. ಹಿಂದೆ ಹೋಗಿ ಬೇರೆ ಸಂಖ್ಯೆ ಪ್ರಯತ್ನಿಸಿ.',
+      paid:'ಪಾವತಿಸಲಾಗಿದೆ', pending:'ಬಾಕಿ', remind:'ಜ್ಞಾಪನೆ', receiptNo:'ರಸೀದಿ ಸಂಖ್ಯೆ', paidOn:'ಪಾವತಿ ದಿನಾಂಕ', method:'ವಿಧಾನ', paidAmt:'ಪಾವತಿಸಿದ ಮೊತ್ತ',
+      sumA:'ಮನೆಗಳು ಪಾವತಿಸಿವೆ', sumB:'ಸಂಗ್ರಹ',
+      trialsNone:'ಈ ಸಾಧನದಲ್ಲಿ ಇದು ನಿಮ್ಮ ಮೊದಲ ಪ್ರಯೋಗ.', trialsMany:'ಈ ಸಾಧನದಲ್ಲಿ ಪ್ರಯೋಗಗಳು: {n}. ಸರಾಸರಿ ಸಮಯ: {a} ಸೆ.',
+      mUpiS:'UPI', mCardS:'ಕಾರ್ಡ್', mNbS:'ನೆಟ್ ಬ್ಯಾಂಕಿಂಗ್',
+      reminder:'ನಮಸ್ಕಾರ {o}, ಆಸ್ತಿ {i} ಗೆ ₹{a} ಮನೆ ತೆರಿಗೆ ಬಾಕಿ ಇದೆ. ವಾರ್ಡ್ ಟ್ಯಾಕ್ಸ್ ಡೆಸ್ಕ್ ಲಿಂಕ್ ತೆರೆದು, ನಿಮ್ಮ ಆಸ್ತಿ ಸಂಖ್ಯೆ ನಮೂದಿಸಿ, ಸುಮಾರು ಒಂದು ನಿಮಿಷದಲ್ಲಿ ಪಾವತಿಸಿ. ರಸೀದಿ ತಕ್ಷಣ ಸಿಗುತ್ತದೆ. {u}',
+      howTitle:'ಇದು ಹೇಗೆ ಕೆಲಸ ಮಾಡುತ್ತದೆ',
+      how1:'ಆಸ್ತಿ ಹುಡುಕಿ: ನಿಮ್ಮ ಆಸ್ತಿ ಸಂಖ್ಯೆ (ಉದಾ. HT-1001) ಟೈಪ್ ಮಾಡಿ, "ಹುಡುಕಿ" ಒತ್ತಿ.',
+      how2:'ಬಾಕಿ ಪರಿಶೀಲಿಸಿ: ಮಾಲೀಕರ ಹೆಸರು, ವಿಳಾಸ, ತೆರಿಗೆ ವರ್ಷ ಮತ್ತು ಮೊತ್ತ ನೋಡಿ.',
+      how3:'ಪಾವತಿ ವಿಧಾನ ಆರಿಸಿ: UPI, ಕಾರ್ಡ್ ಅಥವಾ ನೆಟ್ ಬ್ಯಾಂಕಿಂಗ್.',
+      how4:'ರಸೀದಿ ಪಡೆಯಿರಿ: ಪಾವತಿ ಮುಗಿದ ತಕ್ಷಣ ರಸೀದಿ ಕಾಣಿಸುತ್ತದೆ. ಅದರ ಸ್ಕ್ರೀನ್‌ಶಾಟ್ ಇಟ್ಟುಕೊಳ್ಳಿ.',
+      howPayTitle:'ಪಾವತಿ ಮಾಡುವುದು ಹೇಗೆ',
+      pay1:'UPI: ಯಾವುದೇ UPI ಆ್ಯಪ್ (PhonePe, Google Pay, Paytm) ಮೂಲಕ QR ಸ್ಕ್ಯಾನ್ ಮಾಡಿ, ಮೊತ್ತ ಪರಿಶೀಲಿಸಿ, UPI PIN ನಮೂದಿಸಿ.',
+      pay2:'ಕಾರ್ಡ್: ಕಾರ್ಡ್ ಸಂಖ್ಯೆ, ಮುಕ್ತಾಯ ದಿನಾಂಕ, CVV ನಮೂದಿಸಿ, ನಂತರ ಬ್ಯಾಂಕ್‌ನಿಂದ ಬಂದ OTP ಹಾಕಿ.',
+      pay3:'ನೆಟ್ ಬ್ಯಾಂಕಿಂಗ್: ನಿಮ್ಮ ಬ್ಯಾಂಕ್ ಆರಿಸಿ, ನಿಮ್ಮ ಬ್ಯಾಂಕ್ ಖಾತೆಯಿಂದ ಲಾಗಿನ್ ಆಗಿ.',
+      howNote:'ಈ ಡೆಮೊದಲ್ಲಿ ಹಣ ಕಡಿತವಾಗುವುದಿಲ್ಲ. ನಿಜವಾದ ವ್ಯವಸ್ಥೆಯಲ್ಲಿ ಅಧಿಕೃತ ಪಾವತಿ ಪುಟಕ್ಕೆ ಕರೆದೊಯ್ಯಲಾಗುತ್ತದೆ. ನಿಮ್ಮ PIN, OTP ಅಥವಾ CVV ಯಾರಿಗೂ ಹೇಳಬೇಡಿ.',
+      howSurveyTitle:'ಸಮೀಕ್ಷೆಗಾಗಿ',
+      howSurvey:'"ಪ್ರಯೋಗ ಪ್ರಾರಂಭಿಸಿ" ಒತ್ತಿ, HT-1001 ಪಾವತಿ ಪೂರ್ಣಗೊಳಿಸಿ, ನಂತರ ರಸೀದಿಯ ಫಲಿತಾಂಶ ಸಾಲನ್ನು ಗೂಗಲ್ ಫಾರ್ಮ್‌ಗೆ ಅಂಟಿಸಿ.'
+    },
+    hi: {
+      tagline:'चार आसान चरणों में हाउस टैक्स', demo:'डेमो · नमूना डेटा · असली भुगतान नहीं',
+      tabPay:'टैक्स भुगतान', tabHow:'कैसे काम करता है', tabOffice:'कार्यालय दृश्य', timerLabel:'ट्रायल टाइमर', taps:'टैप',
+      start:'ट्रायल शुरू करें', st1:'संपत्ति खोजें', st2:'बकाया देखें', st3:'भुगतान', st4:'रसीद',
+      hcode:'परिवार कोड (वैकल्पिक)', hcodePh:'जैसे H07', hcodeNote:'सर्वे फ़ॉर्म वाला कोड डालें ताकि आपका ट्रायल आपके जवाबों से जुड़ सके।',
+      pid:'संपत्ति आईडी', pidPh:'जैसे HT-1001', find:'खोजें', samples:'आज़माने के लिए बकाया नमूना आईडी:', range:'HT-1001 से HT-1120 तक कोई भी आईडी चलेगी।',
+      payable:'देय राशि', back:'वापस', 'continue':'आगे बढ़ें', pay:'भुगतान करें', processing:'प्रक्रिया जारी है…',
+      mUpi:'UPI (स्कैन करें या UPI आईडी से)', mCard:'डेबिट या क्रेडिट कार्ड', mNb:'नेट बैंकिंग',
+      qrNote:'यह नमूना QR चित्र है। इसे स्कैन नहीं किया जा सकता और कोई पैसा नहीं कटता।', otherNote:'यह नमूना स्क्रीन है। कोई पैसा नहीं कटेगा।',
+      timeTaken:'लगा समय (सेकंड)', notValid:'डेमो रसीद · मान्य नहीं',
+      formNote:'यह पंक्ति Google Form में चिपकाएँ ताकि आपका समय गिना जाए:', copy:'कॉपी करें', copied:'कॉपी हो गया', again:'फिर से आज़माएँ',
+      sent:'परिणाम प्रोजेक्ट शीट को भेजा गया।', sendFail:'भेज नहीं सके। नीचे की पंक्ति कॉपी करें।',
+      offTitle:'वसूली की स्थिति', offSample:'नमूना परिवार। भुगतान टैब में किया गया भुगतान यहाँ दिखता है।',
+      search:'आईडी या नाम खोजें', fAll:'सभी', fPending:'बकाया', fPaid:'भुगतान हुआ',
+      thId:'संपत्ति', thOwner:'मालिक', thAmt:'टैक्स', thStatus:'स्थिति', reset:'नमूना डेटा रीसेट करें', prev:'पिछला', next:'अगला',
+      remTitle:'रिमाइंडर संदेश', remNote:'SMS या WhatsApp से भेजने के लिए तैयार। WhatsApp खोलकर संपर्क चुनें, या संदेश कॉपी करें।', wa:'WhatsApp खोलें',
+      foot:'कॉलेज सामुदायिक प्रोजेक्ट के लिए बनाया गया। इस पेज के सभी नाम, संख्याएँ और रसीदें नमूना हैं।',
+      notFound:'इस आईडी की संपत्ति नहीं मिली। नीचे दिए नमूनों में से कोई आज़माएँ।', empty:'पहले संपत्ति आईडी लिखें।',
+      owner:'मालिक', address:'पता', year:'कर वर्ष', propId:'संपत्ति आईडी', already:'इस संपत्ति का टैक्स जमा हो चुका है। वापस जाकर दूसरी आईडी आज़माएँ।',
+      paid:'भुगतान हुआ', pending:'बकाया', remind:'रिमाइंडर', receiptNo:'रसीद संख्या', paidOn:'भुगतान की तारीख', method:'तरीका', paidAmt:'भुगतान की राशि',
+      sumA:'परिवारों ने भुगतान किया', sumB:'वसूल',
+      trialsNone:'इस डिवाइस पर यह आपका पहला ट्रायल है।', trialsMany:'इस डिवाइस पर ट्रायल: {n}। औसत समय: {a} सेकंड।',
+      mUpiS:'UPI', mCardS:'कार्ड', mNbS:'नेट बैंकिंग',
+      reminder:'नमस्ते {o}, संपत्ति {i} का ₹{a} हाउस टैक्स बकाया है। Ward Tax Desk का लिंक खोलें, अपनी संपत्ति आईडी डालें और लगभग एक मिनट में भुगतान करें। रसीद तुरंत मिल जाएगी। {u}',
+      howTitle:'यह कैसे काम करता है',
+      how1:'संपत्ति खोजें: अपनी संपत्ति आईडी (जैसे HT-1001) लिखें और "खोजें" दबाएँ।',
+      how2:'बकाया देखें: मालिक का नाम, पता, कर वर्ष और राशि जाँचें।',
+      how3:'भुगतान का तरीका चुनें: UPI, कार्ड या नेट बैंकिंग।',
+      how4:'रसीद पाएँ: भुगतान के बाद रसीद तुरंत दिखती है। उसका स्क्रीनशॉट रख लें।',
+      howPayTitle:'भुगतान कैसे करें',
+      pay1:'UPI: QR को किसी भी UPI ऐप (PhonePe, Google Pay, Paytm) से स्कैन करें, राशि जाँचें और अपना UPI PIN डालें।',
+      pay2:'कार्ड: कार्ड नंबर, समाप्ति तिथि और CVV डालें, फिर बैंक से आया OTP डालें।',
+      pay3:'नेट बैंकिंग: अपना बैंक चुनें और अपने बैंक खाते से लॉगिन करें।',
+      howNote:'इस डेमो में कोई पैसा नहीं कटता। असली व्यवस्था में आपको आधिकारिक भुगतान पेज पर भेजा जाएगा। अपना PIN, OTP या CVV किसी को न बताएँ।',
+      howSurveyTitle:'सर्वे के लिए',
+      howSurvey:'"ट्रायल शुरू करें" दबाएँ, HT-1001 का भुगतान पूरा करें, फिर रसीद की परिणाम पंक्ति Google Form में चिपकाएँ।'
+    },
+    te: {
+      tagline:'నాలుగు సులభ దశల్లో ఇంటి పన్ను', demo:'డెమో · నమూనా డేటా · నిజమైన చెల్లింపు లేదు',
+      tabPay:'పన్ను చెల్లింపు', tabHow:'ఇది ఎలా పనిచేస్తుంది', tabOffice:'కార్యాలయ వీక్షణ', timerLabel:'ట్రయల్ టైమర్', taps:'ట్యాప్‌లు',
+      start:'ట్రయల్ ప్రారంభించండి', st1:'ఆస్తిని వెతకండి', st2:'బకాయి చూడండి', st3:'చెల్లించండి', st4:'రసీదు',
+      hcode:'ఇంటి కోడ్ (ఐచ్ఛికం)', hcodePh:'ఉదా. H07', hcodeNote:'సర్వే ఫారమ్‌లోని కోడ్ వాడండి, అప్పుడు మీ ట్రయల్ మీ సమాధానాలతో సరిపోలుతుంది.',
+      pid:'ఆస్తి ఐడి', pidPh:'ఉదా. HT-1001', find:'వెతకండి', samples:'ప్రయత్నించడానికి బకాయి ఉన్న నమూనా ఐడిలు:', range:'HT-1001 నుండి HT-1120 వరకు ఏ ఐడి అయినా పనిచేస్తుంది.',
+      payable:'చెల్లించవలసిన మొత్తం', back:'వెనుకకు', 'continue':'కొనసాగించండి', pay:'చెల్లించండి', processing:'ప్రాసెస్ అవుతోంది…',
+      mUpi:'UPI (స్కాన్ చేయండి లేదా UPI ఐడితో)', mCard:'డెబిట్ లేదా క్రెడిట్ కార్డ్', mNb:'నెట్ బ్యాంకింగ్',
+      qrNote:'ఇది నమూనా QR చిత్రం. స్కాన్ కాదు, డబ్బు కట్ అవదు.', otherNote:'ఇది నమూనా స్క్రీన్. ఎలాంటి డబ్బు కట్ అవదు.',
+      timeTaken:'పట్టిన సమయం (సెకన్లు)', notValid:'డెమో రసీదు · చెల్లదు',
+      formNote:'మీ సమయం లెక్కలోకి రావడానికి ఈ వరుసను గూగుల్ ఫారమ్‌లో అతికించండి:', copy:'కాపీ', copied:'కాపీ అయింది', again:'మళ్లీ ప్రయత్నించండి',
+      sent:'ఫలితం ప్రాజెక్ట్ షీట్‌కు పంపబడింది.', sendFail:'పంపలేకపోయాము. కింది వరుసను కాపీ చేయండి.',
+      offTitle:'వసూలు స్థితి', offSample:'నమూనా ఇళ్లు. చెల్లింపు ట్యాబ్‌లో చేసిన చెల్లింపు ఇక్కడ కనిపిస్తుంది.',
+      search:'ఐడి లేదా పేరు వెతకండి', fAll:'అన్నీ', fPending:'బకాయి', fPaid:'చెల్లించారు',
+      thId:'ఆస్తి', thOwner:'యజమాని', thAmt:'పన్ను', thStatus:'స్థితి', reset:'నమూనా డేటాను రీసెట్ చేయండి', prev:'మునుపటి', next:'తదుపరి',
+      remTitle:'రిమైండర్ సందేశం', remNote:'SMS లేదా WhatsApp ద్వారా పంపడానికి సిద్ధం. WhatsApp తెరిచి కాంటాక్ట్ ఎంచుకోండి, లేదా సందేశం కాపీ చేయండి.', wa:'WhatsApp తెరవండి',
+      foot:'కళాశాల కమ్యూనిటీ ప్రాజెక్ట్ కోసం తయారు చేయబడింది. ఈ పేజీలోని అన్ని పేర్లు, సంఖ్యలు, రసీదులు నమూనా మాత్రమే.',
+      notFound:'ఈ ఐడితో ఆస్తి కనబడలేదు. కింది నమూనాలలో ఒకటి ప్రయత్నించండి.', empty:'ముందు ఆస్తి ఐడి టైప్ చేయండి.',
+      owner:'యజమాని', address:'చిరునామా', year:'పన్ను సంవత్సరం', propId:'ఆస్తి ఐడి', already:'ఈ ఆస్తి పన్ను ఇప్పటికే చెల్లించబడింది. వెనక్కి వెళ్లి మరో ఐడి ప్రయత్నించండి.',
+      paid:'చెల్లించారు', pending:'బకాయి', remind:'రిమైండర్', receiptNo:'రసీదు సంఖ్య', paidOn:'చెల్లించిన తేదీ', method:'పద్ధతి', paidAmt:'చెల్లించిన మొత్తం',
+      sumA:'ఇళ్లు చెల్లించాయి', sumB:'వసూలైంది',
+      trialsNone:'ఈ పరికరంలో ఇది మీ మొదటి ట్రయల్.', trialsMany:'ఈ పరికరంలో ట్రయల్స్: {n}. సగటు సమయం: {a} సెకన్లు.',
+      mUpiS:'UPI', mCardS:'కార్డ్', mNbS:'నెట్ బ్యాంకింగ్',
+      reminder:'నమస్కారం {o}, ఆస్తి {i} కు ₹{a} ఇంటి పన్ను బకాయి ఉంది. Ward Tax Desk లింక్ తెరిచి, మీ ఆస్తి ఐడి నమోదు చేసి, సుమారు ఒక నిమిషంలో చెల్లించండి. రసీదు వెంటనే వస్తుంది. {u}',
+      howTitle:'ఇది ఎలా పనిచేస్తుంది',
+      how1:'ఆస్తిని వెతకండి: మీ ఆస్తి ఐడి (ఉదా. HT-1001) టైప్ చేసి "వెతకండి" నొక్కండి.',
+      how2:'బకాయి చూడండి: యజమాని పేరు, చిరునామా, పన్ను సంవత్సరం, మొత్తం తనిఖీ చేయండి.',
+      how3:'చెల్లింపు పద్ధతి ఎంచుకోండి: UPI, కార్డ్ లేదా నెట్ బ్యాంకింగ్.',
+      how4:'రసీదు పొందండి: చెల్లించిన వెంటనే రసీదు కనిపిస్తుంది. దాని స్క్రీన్‌షాట్ ఉంచుకోండి.',
+      howPayTitle:'ఎలా చెల్లించాలి',
+      pay1:'UPI: ఏదైనా UPI యాప్ (PhonePe, Google Pay, Paytm) తో QR స్కాన్ చేసి, మొత్తం చూసి, UPI PIN నమోదు చేయండి.',
+      pay2:'కార్డ్: కార్డ్ నంబర్, గడువు తేదీ, CVV నమోదు చేసి, బ్యాంక్ నుండి వచ్చిన OTP ఇవ్వండి.',
+      pay3:'నెట్ బ్యాంకింగ్: మీ బ్యాంక్ ఎంచుకుని, మీ బ్యాంక్ ఖాతాతో లాగిన్ అవ్వండి.',
+      howNote:'ఈ డెమోలో డబ్బు కట్ అవదు. నిజమైన వ్యవస్థలో అధికారిక చెల్లింపు పేజీకి తీసుకెళ్తారు. మీ PIN, OTP లేదా CVV ఎవరికీ చెప్పకండి.',
+      howSurveyTitle:'సర్వే కోసం',
+      howSurvey:'"ట్రయల్ ప్రారంభించండి" నొక్కి, HT-1001 చెల్లింపు పూర్తి చేసి, రసీదులోని ఫలితం వరుసను గూగుల్ ఫారమ్‌లో అతికించండి.'
+    },
+    ml: {
+      tagline:'നാല് ലളിത ഘട്ടങ്ങളിൽ വീട്ടുകരം', demo:'ഡെമോ · സാമ്പിൾ ഡാറ്റ · യഥാർത്ഥ പേയ്‌മെന്റ് ഇല്ല',
+      tabPay:'നികുതി അടയ്ക്കുക', tabHow:'ഇത് എങ്ങനെ പ്രവർത്തിക്കുന്നു', tabOffice:'ഓഫീസ് കാഴ്ച', timerLabel:'ട്രയൽ ടൈമർ', taps:'ടാപ്പുകൾ',
+      start:'ട്രയൽ തുടങ്ങുക', st1:'വസ്തു കണ്ടെത്തുക', st2:'കുടിശ്ശിക നോക്കുക', st3:'അടയ്ക്കുക', st4:'രസീത്',
+      hcode:'വീട്ടുകോഡ് (ഐച്ഛികം)', hcodePh:'ഉദാ. H07', hcodeNote:'സർവേ ഫോമിലെ കോഡ് നൽകുക, അപ്പോൾ നിങ്ങളുടെ ട്രയൽ നിങ്ങളുടെ ഉത്തരങ്ങളുമായി ചേർക്കാം.',
+      pid:'വസ്തു ഐഡി', pidPh:'ഉദാ. HT-1001', find:'തിരയുക', samples:'പരീക്ഷിക്കാൻ കുടിശ്ശികയുള്ള സാമ്പിൾ ഐഡികൾ:', range:'HT-1001 മുതൽ HT-1120 വരെ ഏത് ഐഡിയും പ്രവർത്തിക്കും.',
+      payable:'അടയ്ക്കേണ്ട തുക', back:'പിന്നോട്ട്', 'continue':'തുടരുക', pay:'അടയ്ക്കുക', processing:'പ്രോസസ്സ് ചെയ്യുന്നു…',
+      mUpi:'UPI (സ്കാൻ ചെയ്യുക അല്ലെങ്കിൽ UPI ഐഡി)', mCard:'ഡെബിറ്റ് അല്ലെങ്കിൽ ക്രെഡിറ്റ് കാർഡ്', mNb:'നെറ്റ് ബാങ്കിംഗ്',
+      qrNote:'ഇത് സാമ്പിൾ QR ചിത്രമാണ്. സ്കാൻ ചെയ്യാനാകില്ല, പണം പോകില്ല.', otherNote:'ഇത് സാമ്പിൾ സ്ക്രീനാണ്. പണം ഈടാക്കില്ല.',
+      timeTaken:'എടുത്ത സമയം (സെക്കൻഡ്)', notValid:'ഡെമോ രസീത് · സാധുവല്ല',
+      formNote:'നിങ്ങളുടെ സമയം കണക്കിലെടുക്കാൻ ഈ വരി ഗൂഗിൾ ഫോമിൽ ഒട്ടിക്കുക:', copy:'പകർത്തുക', copied:'പകർത്തി', again:'വീണ്ടും ശ്രമിക്കുക',
+      sent:'ഫലം പ്രോജക്ട് ഷീറ്റിലേക്ക് അയച്ചു.', sendFail:'അയയ്ക്കാനായില്ല. താഴെയുള്ള വരി പകർത്തുക.',
+      offTitle:'പിരിവ് നില', offSample:'സാമ്പിൾ വീടുകൾ. പേയ്‌മെന്റ് ടാബിൽ നടത്തിയ പേയ്‌മെന്റ് ഇവിടെ കാണാം.',
+      search:'ഐഡിയോ പേരോ തിരയുക', fAll:'എല്ലാം', fPending:'കുടിശ്ശിക', fPaid:'അടച്ചത്',
+      thId:'വസ്തു', thOwner:'ഉടമ', thAmt:'നികുതി', thStatus:'നില', reset:'സാമ്പിൾ ഡാറ്റ റീസെറ്റ് ചെയ്യുക', prev:'മുമ്പത്തേത്', next:'അടുത്തത്',
+      remTitle:'ഓർമ്മപ്പെടുത്തൽ സന്ദേശം', remNote:'SMS അല്ലെങ്കിൽ WhatsApp വഴി അയയ്ക്കാൻ തയ്യാർ. WhatsApp തുറന്ന് കോൺടാക്റ്റ് തിരഞ്ഞെടുക്കുക, അല്ലെങ്കിൽ സന്ദേശം പകർത്തുക.', wa:'WhatsApp തുറക്കുക',
+      foot:'കോളേജ് കമ്മ്യൂണിറ്റി പ്രോജക്ടിനായി നിർമ്മിച്ചത്. ഈ പേജിലെ എല്ലാ പേരുകളും നമ്പറുകളും രസീതുകളും സാമ്പിൾ മാത്രമാണ്.',
+      notFound:'ഈ ഐഡിയുള്ള വസ്തു കണ്ടില്ല. താഴെയുള്ള സാമ്പിളുകളിൽ ഒന്ന് ശ്രമിക്കുക.', empty:'ആദ്യം വസ്തു ഐഡി ടൈപ്പ് ചെയ്യുക.',
+      owner:'ഉടമ', address:'വിലാസം', year:'നികുതി വർഷം', propId:'വസ്തു ഐഡി', already:'ഈ വസ്തുവിന്റെ നികുതി ഇതിനകം അടച്ചു. പിന്നോട്ട് പോയി മറ്റൊരു ഐഡി ശ്രമിക്കുക.',
+      paid:'അടച്ചത്', pending:'കുടിശ്ശിക', remind:'ഓർമ്മപ്പെടുത്തുക', receiptNo:'രസീത് നമ്പർ', paidOn:'അടച്ച തീയതി', method:'രീതി', paidAmt:'അടച്ച തുക',
+      sumA:'വീടുകൾ അടച്ചു', sumB:'പിരിഞ്ഞു',
+      trialsNone:'ഈ ഉപകരണത്തിൽ ഇത് നിങ്ങളുടെ ആദ്യ ട്രയലാണ്.', trialsMany:'ഈ ഉപകരണത്തിലെ ട്രയലുകൾ: {n}. ശരാശരി സമയം: {a} സെക്കൻഡ്.',
+      mUpiS:'UPI', mCardS:'കാർഡ്', mNbS:'നെറ്റ് ബാങ്കിംഗ്',
+      reminder:'നമസ്കാരം {o}, വസ്തു {i} ന്റെ ₹{a} വീട്ടുകരം കുടിശ്ശികയാണ്. Ward Tax Desk ലിങ്ക് തുറന്ന്, നിങ്ങളുടെ വസ്തു ഐഡി നൽകി, ഏകദേശം ഒരു മിനിറ്റിൽ അടയ്ക്കുക. രസീത് ഉടൻ ലഭിക്കും. {u}',
+      howTitle:'ഇത് എങ്ങനെ പ്രവർത്തിക്കുന്നു',
+      how1:'വസ്തു കണ്ടെത്തുക: നിങ്ങളുടെ വസ്തു ഐഡി (ഉദാ. HT-1001) ടൈപ്പ് ചെയ്ത് "തിരയുക" അമർത്തുക.',
+      how2:'കുടിശ്ശിക നോക്കുക: ഉടമയുടെ പേര്, വിലാസം, നികുതി വർഷം, തുക എന്നിവ പരിശോധിക്കുക.',
+      how3:'അടയ്ക്കുന്ന രീതി തിരഞ്ഞെടുക്കുക: UPI, കാർഡ് അല്ലെങ്കിൽ നെറ്റ് ബാങ്കിംഗ്.',
+      how4:'രസീത് നേടുക: അടച്ചയുടൻ രസീത് കാണാം. അതിന്റെ സ്ക്രീൻഷോട്ട് സൂക്ഷിക്കുക.',
+      howPayTitle:'എങ്ങനെ അടയ്ക്കാം',
+      pay1:'UPI: ഏതെങ്കിലും UPI ആപ്പ് (PhonePe, Google Pay, Paytm) ഉപയോഗിച്ച് QR സ്കാൻ ചെയ്യുക, തുക പരിശോധിക്കുക, UPI PIN നൽകുക.',
+      pay2:'കാർഡ്: കാർഡ് നമ്പർ, കാലാവധി, CVV നൽകുക, തുടർന്ന് ബാങ്കിൽ നിന്നുള്ള OTP നൽകുക.',
+      pay3:'നെറ്റ് ബാങ്കിംഗ്: നിങ്ങളുടെ ബാങ്ക് തിരഞ്ഞെടുത്ത് ബാങ്ക് അക്കൗണ്ട് ഉപയോഗിച്ച് ലോഗിൻ ചെയ്യുക.',
+      howNote:'ഈ ഡെമോയിൽ പണം ഈടാക്കില്ല. യഥാർത്ഥ സംവിധാനത്തിൽ ഔദ്യോഗിക പേയ്‌മെന്റ് പേജിലേക്ക് കൊണ്ടുപോകും. നിങ്ങളുടെ PIN, OTP, CVV ആരോടും പറയരുത്.',
+      howSurveyTitle:'സർവേയ്ക്ക്',
+      howSurvey:'"ട്രയൽ തുടങ്ങുക" അമർത്തി, HT-1001 പേയ്‌മെന്റ് പൂർത്തിയാക്കി, രസീതിലെ ഫല വരി ഗൂഗിൾ ഫോമിൽ ഒട്ടിക്കുക.'
+    }
+  };
+
+  /* ---- 120 sample households (all invented) ---- */
+  function makeSeed(){
+    var s = 7;
+    function r(){ s = (s*1664525 + 1013904223) >>> 0; return s / 4294967296; }
+    var F = ['Ramesh','Lakshmi','Suresh','Anita','Mohan','Kavitha','Venkatesh','Shanti','Prakash','Geeta','Rajesh','Sunita','Manjunath','Radha','Krishna','Meena','Naveen','Padma','Anil','Savitha','Ravi','Latha','Sanjay','Usha','Harish','Bhavani','Mahesh','Deepa','Gopal','Rekha','Thomas','Mary','Abdul','Fatima','Joseph','Sarita','Kiran','Jyothi','Vijay','Asha'];
+    var L = ['K','S','R','M','N','G','P','D','B','H','T','V','A','L','C','J'];
+    var out = [];
+    for (var i = 0; i < 120; i++){
+      var lane = 1 + Math.floor(i / 15);
+      out.push({
+        id:'HT-' + (1001 + i),
+        owner:F[Math.floor(r()*F.length)] + ' ' + L[Math.floor(r()*L.length)] + '.',
+        addr:'Ward 12, Lane ' + lane + ', House ' + (2 + (i % 15) * 2),
+        tax:(120 + Math.floor(r()*840)) * 10,
+        paid:r() < 0.32
+      });
+    }
+    return out;
+  }
+
+  var H = makeSeed();
+  var lang = 'en', cur = null, step = 1;
+  var running = false, startTs = 0, taps = 0, tickId = null, lastSec = 0, lastTaps = 0, lastMethod = 'upi';
+  var remId = null, lastResultLine = '', hc = '', logState = '';
+  var ofQ = '', ofF = 'all', ofP = 1, PAGE = 15;
+  var memTrials = [];
+  var $ = function(id){ return document.getElementById(id); };
+  function t(k){ return (T[lang] && T[lang][k]) || T.en[k] || k; }
+  function money(n){ return '₹' + Number(n).toLocaleString('en-IN'); }
+  function safeGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
+  function safeSet(k, v){ try { localStorage.setItem(k, v); } catch(e){} }
+
+  function applyLang(){
+    document.documentElement.lang = lang;
+    document.querySelectorAll('[data-i]').forEach(function(e){ e.textContent = t(e.getAttribute('data-i')); });
+    document.querySelectorAll('[data-ph]').forEach(function(e){ e.placeholder = t(e.getAttribute('data-ph')); });
+    $('langSel').value = lang;
+    if (cur && step === 2) renderReview();
+    if (cur && step === 4){ renderReceipt(); renderTrialsNote(); showLog(); }
+    $('payAmt').textContent = (cur && step === 3) ? money(cur.tax) : '';
+    renderOffice();
+    if (remId) showReminder(remId, false);
+  }
+
+  /* ---- timer ---- */
+  function fmt(s){ var m = Math.floor(s/60), r = s % 60; return (m<10?'0':'')+m+':'+(r<10?'0':'')+r; }
+  function tick(){ $('clock').textContent = fmt(Math.floor((Date.now()-startTs)/1000)); }
+  function stopTick(){ if (tickId){ clearInterval(tickId); tickId = null; } running = false; }
+  function beginTimer(){
+    stopTick(); taps = 0; $('tapCount').textContent = '0';
+    startTs = Date.now(); running = true; tickId = setInterval(tick, 250); tick();
+  }
+  function startTrial(){
+    beginTimer(); cur = null; logState = '';
+    $('pid').value = ''; $('findErr').textContent = ''; $('fallback').hidden = true;
+    setStep(1);
+  }
+  function ensureStart(){ if (!running && step < 4) beginTimer(); }
+
+  /* ---- steps ---- */
+  function setStep(n){
+    step = n;
+    ['s1','s2','s3','s4'].forEach(function(id, i){ $(id).hidden = (i+1) !== n; });
+    var items = $('stepper').children;
+    for (var i = 0; i < items.length; i++){
+      items[i].className = (i+1) < n ? 'done' : ((i+1) === n ? 'active' : '');
+    }
+    if (n === 1) renderChips();
+  }
+  function renderChips(){
+    var p = H.filter(function(h){ return !h.paid; }).slice(0, 6);
+    $('chips').innerHTML = p.map(function(h){ return '<button type="button" class="chip" data-id="'+h.id+'">'+h.id+'</button>'; }).join('');
+  }
+  function find(){
+    var v = $('pid').value.trim().toUpperCase();
+    if (!v){ $('findErr').textContent = t('empty'); return; }
+    var h = H.filter(function(x){ return x.id === v; })[0];
+    if (!h){ $('findErr').textContent = t('notFound'); return; }
+    $('findErr').textContent = ''; cur = h; renderReview(); setStep(2);
+  }
+  function renderReview(){
+    $('reviewDl').innerHTML =
+      '<dt>'+t('propId')+'</dt><dd>'+cur.id+'</dd>'+
+      '<dt>'+t('owner')+'</dt><dd>'+cur.owner+'</dd>'+
+      '<dt>'+t('address')+'</dt><dd>'+cur.addr+'</dd>'+
+      '<dt>'+t('year')+'</dt><dd>2026-27</dd>'+
+      '<dt>'+t('thStatus')+'</dt><dd><span class="pill '+(cur.paid?'paid':'pending')+'">'+t(cur.paid?'paid':'pending')+'</span></dd>';
+    $('amt').textContent = money(cur.tax);
+    $('reviewMsg').textContent = cur.paid ? t('already') : '';
+    $('go3').disabled = cur.paid;
+  }
+  function goPay(){
+    $('qr').innerHTML = qr(cur.id);
+    $('payAmt').textContent = money(cur.tax);
+    setStep(3); methodChanged();
+  }
+  function methodChanged(){
+    var m = document.querySelector('input[name="m"]:checked').value;
+    $('qrbox').hidden = m !== 'upi'; $('otherNote').hidden = m === 'upi';
+  }
+  function doPay(){
+    var m = document.querySelector('input[name="m"]:checked').value;
+    var btn = $('payBtn'); btn.disabled = true; $('payLbl').textContent = t('processing'); $('payAmt').textContent = '';
+    setTimeout(function(){
+      btn.disabled = false; $('payLbl').textContent = t('pay');
+      lastMethod = m;
+      lastSec = Math.max(1, Math.round((Date.now()-startTs)/1000)); lastTaps = taps;
+      stopTick(); $('clock').textContent = fmt(lastSec);
+      hc = $('hc').value.trim().toUpperCase(); safeSet('wtd-hc', hc);
+      cur.paid = true; cur.paidAt = new Date(); cur.rno = 'DEMO-' + String(Math.floor(1000 + Math.random()*9000));
+      logTrial(); renderReceipt(); renderTrialsNote(); renderOffice(); setStep(4);
+      sendLog();
+    }, 1300);
+  }
+  function renderReceipt(){
+    $('rTime').textContent = lastSec; $('rTaps').textContent = lastTaps;
+    var mname = t(lastMethod === 'upi' ? 'mUpiS' : (lastMethod === 'card' ? 'mCardS' : 'mNbS'));
+    var when = cur.paidAt ? cur.paidAt.toLocaleString(lang === 'en' ? 'en-IN' : lang + '-IN') : '';
+    $('receiptDl').innerHTML =
+      '<dt>'+t('receiptNo')+'</dt><dd>'+cur.rno+'</dd>'+
+      '<dt>'+t('propId')+'</dt><dd>'+cur.id+'</dd>'+
+      '<dt>'+t('owner')+'</dt><dd>'+cur.owner+'</dd>'+
+      '<dt>'+t('paidAmt')+'</dt><dd>'+money(cur.tax)+'</dd>'+
+      '<dt>'+t('method')+'</dt><dd>'+mname+'</dd>'+
+      '<dt>'+t('paidOn')+'</dt><dd>'+when+'</dd>';
+    var n = getTrials().length;
+    lastResultLine = (hc ? hc + ' | ' : '') + 'Trial ' + n + ' | ' + lastSec + ' s | ' + lastTaps + ' taps | ' + lang.toUpperCase();
+    $('resultLine').textContent = lastResultLine;
+  }
+
+  /* ---- trial log on this device ---- */
+  function getTrials(){
+    var raw = safeGet('wtd-trials');
+    if (raw){ try { return JSON.parse(raw); } catch(e){} }
+    return memTrials;
+  }
+  function logTrial(){
+    var list = getTrials(); list.push({s:lastSec, p:lastTaps, l:lang, id:cur.id});
+    memTrials = list; safeSet('wtd-trials', JSON.stringify(list));
+  }
+  function renderTrialsNote(){
+    var list = getTrials();
+    if (list.length <= 1){ $('trialsNote').textContent = t('trialsNone'); return; }
+    var avg = Math.round(list.reduce(function(a,b){ return a + b.s; }, 0) / list.length);
+    $('trialsNote').textContent = t('trialsMany').replace('{n}', list.length).replace('{a}', avg);
+  }
+
+  /* ---- send result to the project Google Sheet ---- */
+  function sendLog(){
+    logState = ''; showLog();
+    if (!LOG_URL) return;
+    var body = JSON.stringify({code:hc, seconds:lastSec, taps:lastTaps, lang:lang, method:lastMethod, property:cur.id});
+    try {
+      fetch(LOG_URL, {method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:body})
+        .then(function(){ logState = 'sent'; showLog(); }, function(){ logState = 'fail'; showLog(); });
+    } catch(e){ logState = 'fail'; showLog(); }
+  }
+  function showLog(){ $('logStatus').textContent = logState === 'sent' ? t('sent') : (logState === 'fail' ? t('sendFail') : ''); }
+
+  /* ---- copy with fallback ---- */
+  function copyText(text, btn, box){
+    var label = btn.textContent;
+    function ok(){ btn.textContent = t('copied'); setTimeout(function(){ btn.textContent = label; }, 1400); }
+    function fb(){ box.hidden = false; box.value = text; box.focus(); box.select(); }
+    try { navigator.clipboard.writeText(text).then(ok, fb); } catch(e){ fb(); }
+  }
+
+  /* ---- sample QR picture ---- */
+  function qr(seed){
+    var s = 0, i; for (i = 0; i < seed.length; i++) s = (s*31 + seed.charCodeAt(i)) >>> 0;
+    function rnd(){ s = (s*1664525 + 1013904223) >>> 0; return s / 4294967296; }
+    var n = 21, c = 6, out = '<svg viewBox="0 0 '+(n*c)+' '+(n*c)+'" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Sample QR"><rect class="qb" width="'+(n*c)+'" height="'+(n*c)+'"/>';
+    function fnd(x,y){ return '<rect class="qf" x="'+x*c+'" y="'+y*c+'" width="'+7*c+'" height="'+7*c+'"/><rect class="qb" x="'+(x+1)*c+'" y="'+(y+1)*c+'" width="'+5*c+'" height="'+5*c+'"/><rect class="qf" x="'+(x+2)*c+'" y="'+(y+2)*c+'" width="'+3*c+'" height="'+3*c+'"/>'; }
+    for (var y = 0; y < n; y++) for (var x = 0; x < n; x++){
+      if ((x < 8 && y < 8) || (x > 12 && y < 8) || (x < 8 && y > 12)) continue;
+      if (rnd() > .5) out += '<rect class="qf" x="'+x*c+'" y="'+y*c+'" width="'+c+'" height="'+c+'"/>';
+    }
+    return out + fnd(0,0) + fnd(14,0) + fnd(0,14) + '</svg>';
+  }
+
+  /* ---- office view ---- */
+  function renderOffice(){
+    var tot = 0, got = 0, np = 0;
+    H.forEach(function(h){ tot += h.tax; if (h.paid){ got += h.tax; np++; } });
+    $('bar').style.width = (tot ? Math.round(got/tot*100) : 0) + '%';
+    $('offSummary').innerHTML = '<b>' + np + ' / ' + H.length + '</b> ' + t('sumA') + ' · <b>' + money(got) + '</b> / ' + money(tot) + ' ' + t('sumB');
+    var q = ofQ.trim().toLowerCase();
+    var list = H.filter(function(h){
+      if (ofF === 'paid' && !h.paid) return false;
+      if (ofF === 'pending' && h.paid) return false;
+      return !q || h.id.toLowerCase().indexOf(q) >= 0 || h.owner.toLowerCase().indexOf(q) >= 0;
+    });
+    var pages = Math.max(1, Math.ceil(list.length / PAGE));
+    if (ofP > pages) ofP = pages;
+    var from = (ofP - 1) * PAGE, to = Math.min(list.length, from + PAGE);
+    $('offBody').innerHTML = list.slice(from, to).map(function(h){
+      return '<tr><td>'+h.id+'</td><td>'+h.owner+'</td><td>'+money(h.tax)+'</td>'+
+        '<td><span class="pill '+(h.paid?'paid':'pending')+'">'+t(h.paid?'paid':'pending')+'</span></td>'+
+        '<td>'+(h.paid ? '' : '<button class="btn ghost small" data-rem="'+h.id+'" type="button">'+t('remind')+'</button>')+'</td></tr>';
+    }).join('');
+    $('pgInfo').textContent = list.length ? (from + 1) + '–' + to + ' / ' + list.length : '0';
+    $('prevPg').disabled = ofP <= 1; $('nextPg').disabled = ofP >= pages;
+  }
+  function showReminder(id, scroll){
+    var h = H.filter(function(x){ return x.id === id; })[0];
+    if (!h || h.paid){ remId = null; $('remCard').hidden = true; return; }
+    remId = id;
+    var msg = t('reminder').replace('{o}', h.owner).replace('{a}', Number(h.tax).toLocaleString('en-IN')).replace('{i}', h.id).replace('{u}', SITE_URL);
+    $('remMsg').textContent = msg;
+    $('waLink').href = 'https://wa.me/?text=' + encodeURIComponent(msg);
+    $('remCard').hidden = false;
+    if (scroll){ try { $('remCard').scrollIntoView({block:'nearest'}); } catch(e){} }
+  }
+
+  /* ---- tabs ---- */
+  function tab(which){
+    ['pay','how','office'].forEach(function(id){
+      var on = id === which;
+      $(id).hidden = !on;
+      $('tab' + id.charAt(0).toUpperCase() + id.slice(1)).setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    if (which === 'office') renderOffice();
+  }
+
+  /* ---- wiring ---- */
+  $('chips').addEventListener('click', function(e){ var b = e.target.closest('.chip'); if (b){ $('pid').value = b.getAttribute('data-id'); $('findErr').textContent = ''; } });
+  $('findForm').addEventListener('submit', function(e){ e.preventDefault(); find(); });
+  $('pid').addEventListener('focus', ensureStart);
+  $('back2').addEventListener('click', function(){ setStep(1); });
+  $('go3').addEventListener('click', goPay);
+  $('back3').addEventListener('click', function(){ setStep(2); });
+  $('methods').addEventListener('change', methodChanged);
+  $('payBtn').addEventListener('click', doPay);
+  $('startBtn').addEventListener('click', startTrial);
+  $('again').addEventListener('click', startTrial);
+  $('copyResult').addEventListener('click', function(){ copyText(lastResultLine, $('copyResult'), $('fallback')); });
+  $('copyRem').addEventListener('click', function(){ copyText($('remMsg').textContent, $('copyRem'), $('remFallback')); });
+  $('tabPay').addEventListener('click', function(){ tab('pay'); });
+  $('tabHow').addEventListener('click', function(){ tab('how'); });
+  $('tabOffice').addEventListener('click', function(){ tab('office'); });
+  $('goPay').addEventListener('click', function(){ tab('pay'); });
+  $('offBody').addEventListener('click', function(e){ var b = e.target.closest('[data-rem]'); if (b) showReminder(b.getAttribute('data-rem'), true); });
+  $('q').addEventListener('input', function(){ ofQ = this.value; ofP = 1; renderOffice(); });
+  $('flt').addEventListener('change', function(){ ofF = this.value; ofP = 1; renderOffice(); });
+  $('prevPg').addEventListener('click', function(){ if (ofP > 1){ ofP--; renderOffice(); } });
+  $('nextPg').addEventListener('click', function(){ ofP++; renderOffice(); });
+  $('resetData').addEventListener('click', function(){ H = makeSeed(); remId = null; $('remCard').hidden = true; ofQ = ''; ofF = 'all'; ofP = 1; $('q').value = ''; $('flt').value = 'all'; renderOffice(); renderChips(); });
+  $('langSel').addEventListener('change', function(){ lang = this.value; safeSet('wtd-lang', lang); applyLang(); });
+  $('pay').addEventListener('click', function(e){
+    if (e.target.closest('[data-notap]')) return;
+    if (e.target.closest('button, label, .chip')){ ensureStart(); if (running){ taps++; $('tapCount').textContent = taps; } }
+  });
+
+  var savedLang = safeGet('wtd-lang'); if (savedLang && T[savedLang]) lang = savedLang;
+  var savedHc = safeGet('wtd-hc'); if (savedHc){ hc = savedHc; $('hc').value = savedHc; }
+  applyLang(); setStep(1);
+})();
+</script>
+</body>
+</html>
